@@ -8,7 +8,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsResolver {
     constructor(private readonly productsService: ProductsService) {}
     
-    @Mutation(() => Product)
+    @Mutation(() => Product, { name: 'createProduct' })
     createProduct(@Args('createProductDto') createProductDto: CreateProductDto) {
         return this.productsService.create(createProductDto);
     }
@@ -20,7 +20,6 @@ export class ProductsResolver {
 
     @Query(() => Product, { name: 'product' })
     findOne(@Args('id') id: string) {
-        console.log(id);
         return this.productsService.findOne(id);
     }
 

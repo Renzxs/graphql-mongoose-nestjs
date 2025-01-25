@@ -20,6 +20,7 @@ export class ProductsResolver {
 
     @Query(() => Product, { name: 'product' })
     findOne(@Args('id') id: string) {
+        console.log(id);
         return this.productsService.findOne(id);
     }
 

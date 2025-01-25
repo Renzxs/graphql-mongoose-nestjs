@@ -13,10 +13,10 @@ import { AppResolver } from './app.resolver';
       driver: ApolloDriver,
       autoSchemaFile: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017'),
+    MongooseModule.forRoot('mongodb://localhost:27017', {
+      dbName: 'test'
+    }),
     ProductsModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService, AppResolver],
+  ]
 })
 export class AppModule {}

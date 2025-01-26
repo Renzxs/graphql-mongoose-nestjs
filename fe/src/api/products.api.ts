@@ -27,7 +27,25 @@ export const CREATE_PRODUCT = gql`
     createProduct(createProductDto: $createProductDto) {
       id
       name
+      description
       price
     }
   }
 `;
+
+export const UPDATE_PRODUCT = gql`
+  mutation updateProduct($updateProductDto: UpdateProductDto) {
+    updateProduct(updateProductDto: $updateProductDto) {
+      id
+      name
+      description
+      price
+    }
+  }
+`;
+
+export const DELETE_PRODUCT = gql`
+  mutation deleteProduct($id: String) {
+    deleteProduct(id: $id) 
+  }
+`

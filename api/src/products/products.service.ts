@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schemas/product.schema';
 import { Model } from 'mongoose';
@@ -10,24 +10,53 @@ export class ProductsService {
     constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
 
     async create(createProductDto: CreateProductDto): Promise<Product> {
-        const product = new this.productModel(createProductDto);
-        return product.save();
+        try {
+            const product = new this.productModel(createProductDto);
+            return product.save();
+        } 
+        catch(error) {
+            throw new Error('Error creating product: ' + error.message);
+        }
     }
 
     async findAll(): Promise<Product[]> {
-        return this.productModel.find().exec();
+        try {
+            return this.productModel.find().exec();
+        }
+        catch(error) {
+            throw new Error('Error fetching products: ' + error.message);
+        }
     }
 
     async findOne(id: string): Promise<Product | null> {
-        return this.productModel.findById(id).exec();
+        try {
+            return this.productModel.findById(id).exec();
+        }
+        catch(error) {
+            throw new Error('Error fetching product: ' + error.message);
+        }
     }
 
     async update(id: string, updateProductDto: UpdateProductDto): Promise<Product | null> {
-        return this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true }).exec();
+        try {
+            const product = this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true }).exec();
+            if(!product) {
+                throw new NotFoundException(`Product with id ${id} not found`);
+            }
+            return product;
+        }
+        catch(error) {
+            throw new Error('Error updating product: ' + error.message);
+        }
     }
 
     async delete(id: string): Promise<boolean> {
-        const result = this.productModel.findByIdAndDelete(id).exec();
-        return !!result;
+        try {
+            const result = this.productModel.findByIdAndDelete(id).exec();
+            return !!result;
+        }
+        catch(error) {
+            throw new Error('Error deleting product: ' + error.message);
+        }
     }
 }   

@@ -13,7 +13,7 @@ export class ProductsResolver {
         return this.productsService.create(createProductDto);
     }
 
-    @Query(() => [Product], { name: 'products'})
+    @Query(() => [Product], { name: 'products' })
     findAll() {
         return this.productsService.findAll();
     }
@@ -23,12 +23,12 @@ export class ProductsResolver {
         return this.productsService.findOne(id);
     }
 
-    @Mutation(() => Product)
+    @Mutation(() => Product, { name: 'updateProduct' })
     updateProduct(@Args('updateProductDto') updateProductDto: UpdateProductDto) {
         return this.productsService.update(updateProductDto.id, updateProductDto);
     }
 
-    @Mutation(() => Boolean)
+    @Mutation(() => Boolean, { name: 'deleteProduct' })
     deleteProduct(@Args('id') id: string) {
         return this.productsService.delete(id);
     }

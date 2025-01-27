@@ -1,51 +1,25 @@
 import { Button, Card, Flex, Input, Typography, Modal, Spin } from "antd";
-import { useState } from "react";
-import { CREATE_PRODUCT, DELETE_PRODUCT, GET_PRODUCTS } from "./api/products.api";
-import { useMutation, useQuery } from "@apollo/client";
+import useProduct from "./hooks/useProductHook";
 
 function App() {
-  const { data, loading, error } = useQuery(GET_PRODUCTS);
-  const [createProduct] = useMutation(CREATE_PRODUCT);
-  const [deleteProduct] = useMutation(DELETE_PRODUCT);
+  const {
+    getProductsData,
+    getProductsLoading,
+    getProductsError,
+    name,
+    setName,
+    description,
+    setDescription,
+    price,
+    setPrice,
+    modalVisible,
+    setModalVisible,
+    handleCreateProduct,
+    handleDeleteProduct
+  } = useProduct();
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const handleCreateProduct = async () => {
-    try {
-      await createProduct({
-        variables: {
-          createProductDto: {
-            name,
-            description,
-            price: parseFloat(price),
-          },
-        },
-        refetchQueries: [{ query: GET_PRODUCTS }],
-      });
-      setName("");
-      setDescription("");
-      setPrice("");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDeleteProduct = async (id: string) => {
-    try {
-      await deleteProduct({
-        variables: { id },
-        refetchQueries: [{ query: GET_PRODUCTS }],
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  if (loading) return <Flex style={{width: '100%', height: '100vh'}} justify="center" align="center"><Spin/></Flex>;
-  if (error) return <Typography.Text type="danger">Error loading products</Typography.Text>;
+  if (getProductsLoading) return <Flex style={{width: '100%', height: '100vh'}} justify="center" align="center"><Spin/></Flex>;
+  if (getProductsError) return <Typography.Text type="danger">Error loading products</Typography.Text>;
 
   return (
     <Flex justify="center" align="start" style={{ height: "90vh", width: "100%", gap: 20 }}>
@@ -81,7 +55,7 @@ function App() {
 
       <Card title="Product List" style={{ flex: 1.5, overflow: "auto" }} type="inner">
         <Flex vertical gap={10}>
-          {data.products.map((product: Product) => (
+          {getProductsData.products.map((product: Product) => (
             <Card title={`Product ID: ${product.id}`} key={product.id} type="inner">
               <Flex justify="space-between" gap={40} align="center">
                 <div>
@@ -89,16 +63,19 @@ function App() {
                   <Typography.Text>{product.description}</Typography.Text>
                 </div>
 
-                <Flex vertical align="flex-end" wrap={false}>
-                  <Typography.Title level={4}>${product.price}</Typography.Title>
+                <Flex vertical align="flex-end">
+                  <Typography.Title level={4} style={{ textWrap: 'nowrap'}}>${product.price}</Typography.Title>
                   <Flex gap={10}>
-                    <Button type="link" onClick={() => setModalVisible(true)}>
+                  <Button type="primary"  onClick={() => setModalVisible(true)}>
+                      Edit
+                    </Button>
+                    <Button type="primary"  onClick={() => setModalVisible(true)}>
                       Delete
                     </Button>
                     <Modal
                       title="Confirm Delete"
                       open={modalVisible}
-                      onOk={() => handleDeleteProduct(product.id)}
+                      onOk={() => handleDeleteProduct(product.id || '')}
                       onCancel={() => setModalVisible(false)}
                     >
                       <Typography.Text>Are you sure you want to delete this product?</Typography.Text>

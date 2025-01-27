@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ApolloProvider client={client}>
       <App />
-      <ToastContainer position='top-right'/>
+      <ToastContainer position='top-right' limit={3} />
     </ApolloProvider>
   </StrictMode>,
 )

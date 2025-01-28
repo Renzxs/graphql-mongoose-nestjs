@@ -1,5 +1,6 @@
 import { Field, Float, InputType } from '@nestjs/graphql';
 
+// Data Transfer Object (DTO) / params types for create product mutation
 @InputType()
 export class CreateProductDto {
     @Field()

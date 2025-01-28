@@ -4,17 +4,23 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 const useProduct = () => {
-    const { data: getProductsData, loading: getProductsLoading, error: getProductsError } = useQuery(GET_PRODUCTS);
-    const [ getOneProduct ,{ data: getOneProductData, loading: getOneProductLoading, error: getOneProductError }] = useLazyQuery(GET_SINGLE_PRODUCT);
+    // Queries & Mutations
+    const { data: getProductsData, loading: getProductsLoading, error: getProductsError } = useQuery(GET_PRODUCTS); // useQuery used for immediate or automatic data fetching
+    const [ getOneProduct ,{ data: getOneProductData, loading: getOneProductLoading, error: getOneProductError }] = useLazyQuery(GET_SINGLE_PRODUCT); // useLazyQuery used for manual fetching, where you need to manually call it to work, works like useMutation
     const [createProduct] = useMutation(CREATE_PRODUCT);
     const [updateProduct] = useMutation(UPDATE_PRODUCT);
     const [deleteProduct] = useMutation(DELETE_PRODUCT);
 
+    // Input
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [price, setPrice] = useState<string>("");
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
 
+    // Modal State
+    const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+    const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
+
+    // Functions
     const handleCreateProduct = async () => {
         try {   
             await createProduct({
@@ -29,6 +35,9 @@ const useProduct = () => {
             });
 
             toast.success("Successfully Created Product");
+            setName('');
+            setDescription('');
+            setPrice('');
         }
         catch(error) {
             toast.error("Something went wrong");
@@ -53,31 +62,43 @@ const useProduct = () => {
         try {
             await updateProduct({
                 variables: {
-                    id,
-                    name,
-                    description,
-                    price: parseFloat(price)
+                    updateProductDto: {
+                        id,
+                        name,
+                        description,
+                        price: parseFloat(price)
+                    }
                 }
             });
 
             toast.success("Successfully Updated Product");
+            setName('');
+            setDescription('');
+            setPrice('');
+            setEditModalVisible(false);
         }
         catch(error) {
+            console.log(error);
             toast.error("Something went wrong");
         }
     }
       
     const handleFetchSingleData = async (id: string) => {
         try {
-            await getOneProduct({
+            const { data } = await getOneProduct({
                 variables: { id },
             });
+            
+            setName(data.product.name);
+            setDescription(data.product.description);
+            setPrice(data.product.price);
+            setEditModalVisible(true);
         }
         catch(error) {
             toast.error("Something went wrong");
         }
     }
-
+    
     return {
         getProductsData,
         getProductsLoading,
@@ -91,8 +112,10 @@ const useProduct = () => {
         setDescription,
         price,
         setPrice,
-        modalVisible,
-        setModalVisible,
+        deleteModalVisible,
+        setDeleteModalVisible,
+        editModalVisible,
+        setEditModalVisible,
         handleCreateProduct,
         handleDeleteProduct,
         handleUpdateProduct,
